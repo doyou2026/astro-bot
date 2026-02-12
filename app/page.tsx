@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 /* ============================= */
-/* Типы */
+/* Типы Telegram */
 /* ============================= */
 
 interface TelegramWebApp {
@@ -69,7 +69,6 @@ export default function Home() {
         setUserId(id);
         await checkPayment(id);
       } else {
-        // Dev режим
         const devId = 123456;
         setUserId(devId);
         await checkPayment(devId);
@@ -86,10 +85,7 @@ export default function Home() {
   const checkPayment = async (id: number) => {
     try {
       const res = await fetch(`/api/check-access?id=${id}`);
-
-      if (!res.ok) {
-        throw new Error('Ошибка запроса check-access');
-      }
+      if (!res.ok) throw new Error('Ошибка запроса');
 
       const data: CheckAccessResponse = await res.json();
       setIsPaid(data.is_paid);
@@ -138,15 +134,11 @@ export default function Home() {
     try {
       const res = await fetch('/api/create-invoice', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ telegram_id: userId }),
       });
 
-      if (!res.ok) {
-        throw new Error('Ошибка создания счета');
-      }
+      if (!res.ok) throw new Error('Ошибка создания счета');
 
       const data: CreateInvoiceResponse = await res.json();
 
@@ -181,6 +173,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-white p-4 font-sans flex flex-col items-center">
+      
       <header className="text-center mb-6 pt-4 w-full">
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 drop-shadow-sm">
           ASTRO HORARY
@@ -190,7 +183,82 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Остальной JSX можешь оставить без изменений */}
+      <main className="w-full max-w-md flex-1 flex flex-col">
+        {!showResult ? (
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-5 shadow-2xl border border-white/10 flex-1 flex flex-col justify-center">
+            
+            <div className="mb-4">
+              <label className="block text-xs text-purple-300 mb-2 font-semibold">
+                Сфера
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full bg-[#151525] border border-purple-500/30 rounded-lg p-3 text-sm text-white"
+              >
+                <option value="love">💖 Отношения</option>
+                <option value="money">💰 Деньги</option>
+                <option value="destiny">🔮 Будущее</option>
+              </select>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-xs text-purple-300 mb-2 font-semibold">
+                Вопрос
+              </label>
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="Например: Помиримся ли мы?"
+                className="w-full h-28 bg-[#151525] border border-purple-500/30 rounded-lg p-3 text-sm text-white resize-none"
+              />
+            </div>
+
+            <button
+              onClick={handleAsk}
+              disabled={!question || isCalculating}
+              className="w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-r from-purple-600 to-pink-600"
+            >
+              {isCalculating ? 'Связь с космосом...' : 'СПРОСИТЬ ЗВЕЗДЫ ✨'}
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/10 text-center relative">
+            
+            <button
+              onClick={() => setShowResult(false)}
+              className="absolute top-4 left-4 text-purple-300 text-xs"
+            >
+              ← Назад
+            </button>
+
+            <div className="mt-6 mb-4">
+              <h2 className="text-lg font-semibold">Карта построена</h2>
+            </div>
+
+            {isPaid ? (
+              <div>
+                <h3 className="text-green-400 font-bold mb-3">
+                  ДОСТУП РАЗРЕШЕН
+                </h3>
+                <p className="text-base">{prediction}</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-gray-400 mb-4">
+                  Ответ скрыт звездами
+                </p>
+                <button
+                  onClick={handleBuy}
+                  className="bg-yellow-500 text-black font-bold py-3 px-6 rounded-full"
+                >
+                  Открыть за $5
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
