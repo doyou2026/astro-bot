@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Игнорируем ошибки типов, чтобы сайт запустился
+    // Игнорируем ошибки типов
     ignoreBuildErrors: true,
   },
   eslint: {
@@ -10,4 +10,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
