@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Astro Horary",
-  description: "Ask the stars",
+  description: "Ответ звезд на любой вопрос",
 };
 
 export default function RootLayout({
@@ -12,7 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="ru">
+      <head>
+        <script src="https://telegram.org/js/telegram-web-app.js" async />
+      </head>
       <body>{children}</body>
     </html>
   );
