@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background: #0f0c29;
-  color: white;
-  margin: 0;
+html, body {
   padding: 0;
-  overflow-x: hidden;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", system-ui, sans-serif;
+  background: linear-gradient(
+    180deg,
+    #0f172a 0%,
+    #1e293b 100%
+  );
+  color: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
 }
