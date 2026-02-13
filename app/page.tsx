@@ -9,7 +9,7 @@ interface TelegramWebApp {
       first_name?: string;
     };
   };
-  openLink: (url: string) => void;
+  openTelegramLink: (url: string) => void;
   ready: () => void;
   expand: () => void;
 }
@@ -37,14 +37,16 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
+
       tg.ready();
       tg.expand();
 
       const id = tg.initDataUnsafe?.user?.id ?? null;
+      console.log('Telegram user:', id);
+
       setUserId(id);
-      console.log("Telegram user:", id);
     } else {
-      console.log("Not in Telegram WebApp");
+      console.log('Not in Telegram WebApp');
     }
   }, []);
 
@@ -59,15 +61,16 @@ export default function Home() {
 
     setTimeout(() => {
       const answers = [
-        "Да. Но действуйте мягко.",
-        "Сейчас не время. Подождите немного.",
-        "Ответ положительный, если проявите инициативу.",
-        "Нужно ещё время для прояснения.",
+        'Да. Но действуйте мягко.',
+        'Сейчас не время. Подождите немного.',
+        'Ответ положительный, если проявите инициативу.',
+        'Нужно ещё время для прояснения.',
       ];
 
       setPrediction(
         answers[Math.floor(Math.random() * answers.length)]
       );
+
       setIsCalculating(false);
       setShowResult(true);
     }, 1500);
@@ -78,40 +81,43 @@ export default function Home() {
   /* ============================= */
 
   const handleBuy = async () => {
-    console.log("BUY CLICKED");
+    console.log('BUY CLICKED');
+
+    const id = userId ?? 123456; // fallback для dev
 
     try {
       const res = await fetch('/api/create-invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegram_id: userId }),
+        body: JSON.stringify({ telegram_id: id }),
       });
 
-      console.log("Response status:", res.status);
+      console.log('Response status:', res.status);
 
       if (!res.ok) {
         const errText = await res.text();
-        console.error("API ERROR:", errText);
-        alert("Ошибка создания счета");
+        console.error('API ERROR:', errText);
+        alert('Ошибка создания счета');
         return;
       }
 
       const data = await res.json();
-      console.log("Invoice data:", data);
+      console.log('Invoice data:', data);
 
       if (data.pay_url) {
         if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.openLink(data.pay_url);
+          // 🔥 Открываем внутри Telegram
+          window.Telegram.WebApp.openTelegramLink(data.pay_url);
         } else {
           window.location.href = data.pay_url;
         }
       } else {
-        alert("Не получена ссылка оплаты");
+        alert('Не получена ссылка оплаты');
       }
 
     } catch (err) {
-      console.error("BUY ERROR:", err);
-      alert("Ошибка создания счета. Попробуйте позже.");
+      console.error('BUY ERROR:', err);
+      alert('Ошибка создания счета. Попробуйте позже.');
     }
   };
 
